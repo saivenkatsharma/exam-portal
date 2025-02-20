@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String   @unique
+  password  String
+  name      String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  exams     Exam[]
+  attempts  ExamAttempt[]
+}
+
+model Exam {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  duration    Int      // in minutes
+  startTime   DateTime
+  endTime     DateTime
+  createdBy   User     @relation(fields: [userId], references: [id])
+  userId      String   @db.ObjectId
+  questions   Question[]
+  attempts    ExamAttempt[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Question {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  text          String
+  options       String[]
+  correctOption Int
+  exam          Exam     @relation(fields: [examId], references: [id])
+  examId        String   @db.ObjectId
+  answers       Answer[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ExamAttempt {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  exam      Exam     @relation(fields: [examId], references: [id])
+  examId    String   @db.ObjectId
+  startTime DateTime @default(now())
+  endTime   DateTime?
+  status    AttemptStatus @default(IN_PROGRESS)
+  answers   Answer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Answer {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  question      Question @relation(fields: [questionId], references: [id])
+  questionId    String   @db.ObjectId
+  selectedOption Int
+  examAttempt   ExamAttempt @relation(fields: [examAttemptId], references: [id])
+  examAttemptId String   @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  TERMINATED
+} 
