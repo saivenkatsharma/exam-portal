@@ -2,9 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "../ui/Button"
-import AuthLayout from "./AuthLayout"
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -16,29 +13,30 @@ export default function RegisterForm() {
     setError("")
     setLoading(true)
 
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      username: formData.get("username"),
+      password: formData.get("password"),
+      name: formData.get("name"),
+    }
+
     try {
-      const formData = new FormData(e.currentTarget)
-      const data = {
-        username: formData.get("username")?.toString() || "",
-        password: formData.get("password")?.toString() || "",
-        name: formData.get("name")?.toString() || "",
-      }
-
-      if (!data.username || !data.password || !data.name) {
-        throw new Error("All fields are required")
-      }
-
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       })
 
       const json = await res.json()
 
-      if (!res.ok) throw new Error(json.error || "Registration failed")
+      if (!res.ok) {
+        throw new Error(json.error || "Registration failed")
+      }
 
-      router.push("/login?registered=true")
+      // Redirect to login page after successful registration
+      router.push("/login")
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -47,7 +45,8 @@ export default function RegisterForm() {
   }
 
   return (
-    <AuthLayout title="Student Registration">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Student Registration</h2>
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
@@ -55,7 +54,7 @@ export default function RegisterForm() {
       )}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="name" className="block mb-2">
             Full Name
           </label>
           <input
@@ -63,12 +62,11 @@ export default function RegisterForm() {
             id="name"
             name="name"
             required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your full name"
+            className="w-full p-2 border rounded"
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="username" className="block mb-2">
             Username
           </label>
           <input
@@ -76,12 +74,11 @@ export default function RegisterForm() {
             id="username"
             name="username"
             required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Choose a username"
+            className="w-full p-2 border rounded"
           />
         </div>
         <div className="mb-6">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="password" className="block mb-2">
             Password
           </label>
           <input
@@ -89,24 +86,17 @@ export default function RegisterForm() {
             id="password"
             name="password"
             required
-            minLength={6}
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Create a password"
+            className="w-full p-2 border rounded"
           />
         </div>
-        <Button type="submit" disabled={loading}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
+        >
           {loading ? "Registering..." : "Register"}
-        </Button>
-
-        <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            Already registered?{" "}
-            <Link href="/login" className="text-blue-500 hover:text-blue-600 font-medium">
-              Login here
-            </Link>
-          </p>
-        </div>
+        </button>
       </form>
-    </AuthLayout>
+    </div>
   )
 } 

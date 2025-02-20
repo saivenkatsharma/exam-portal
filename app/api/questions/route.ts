@@ -21,23 +21,24 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json()
-    const { title, duration, startTime, endTime } = data
+    const { examId, text, options, correctOption, fileType, fileUrl } = data
 
-    const exam = await prisma.exam.create({
+    const question = await prisma.question.create({
       data: {
-        title,
-        duration,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        userId: decoded.userId
+        text,
+        options,
+        correctOption,
+        fileType,
+        fileUrl,
+        examId
       }
     })
 
-    return NextResponse.json(exam)
+    return NextResponse.json(question)
   } catch (error) {
-    console.error('Exam creation error:', error)
+    console.error('Question creation error:', error)
     return NextResponse.json(
-      { error: 'Failed to create exam' },
+      { error: 'Failed to create question' },
       { status: 500 }
     )
   }

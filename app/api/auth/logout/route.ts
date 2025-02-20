@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server"
-import { cookies } from 'next/headers'
 
 export async function POST() {
+  const response = NextResponse.json(
+    { success: true },
+    { status: 200 }
+  )
+
   // Clear the token cookie
-  cookies().delete('token')
-  
-  return NextResponse.json({ message: "Logged out successfully" })
+  response.cookies.set({
+    name: 'token',
+    value: '',
+    httpOnly: true,
+    expires: new Date(0), // Expire immediately
+    path: '/',
+  })
+
+  return response
 } 

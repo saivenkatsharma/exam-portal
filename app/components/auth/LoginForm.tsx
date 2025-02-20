@@ -38,7 +38,6 @@ export default function LoginForm() {
       })
 
       const json = await res.json()
-      console.log('Login response:', json)
 
       if (!res.ok) {
         throw new Error(json.error || "Login failed")
@@ -46,11 +45,21 @@ export default function LoginForm() {
 
       if (json.success) {
         setStatus("Success! Redirecting...")
-        window.location.replace('/dashboard')
+
+        // First try router push
+        try {
+          await router.push('/dashboard')
+        } catch (e) {
+          // If router push fails, use window.location
+          window.location.href = '/dashboard'
+        }
+      } else {
+        throw new Error("Login failed")
       }
     } catch (err: any) {
       console.error('Login error:', err)
       setError(err.message)
+    } finally {
       setLoading(false)
     }
   }
