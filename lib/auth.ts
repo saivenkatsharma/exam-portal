@@ -1,50 +1,34 @@
-import jwt from "jsonwebtoken"
-import { PrismaClient } from "@prisma/client"
+import { jwtVerify, SignJWT } from 'jose'
 import { prisma } from "@/lib/db"
-
-const prismaClient = new PrismaClient()
 
 interface JWTPayload {
   userId: string
   role: string
 }
 
-export async function auth(req: Request) {
-  const token = req.headers.get("authorization")?.split(" ")[1]
-
-  if (!token) {
-    return null
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string
-    }
-
-    const user = await prismaClient.user.findUnique({
-      where: { id: decoded.userId },
-    })
-
-    return user
-  } catch (error) {
-    return null
-  }
-}
-
 export async function verifyAuth(token: string) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+    const { payload } = await jwtVerify(token, secret)
     
     // Verify user exists
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: payload.userId as string },
     })
 
     if (!user) return null
 
-    return decoded
+    return payload as JWTPayload
   } catch (error) {
     console.error('Auth error:', error)
     return null
   }
+}
+
+export async function signToken(payload: JWTPayload) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('8h')
+    .sign(secret)
 } 

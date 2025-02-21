@@ -13,10 +13,10 @@ model User {
   password  String
   name      String
   role      Role     @default(STUDENT)
+  exams     Exam[]   // For teachers who create exams
+  attempts  Attempt[] // For students who take exams
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  exams     Exam[]
-  attempts  ExamAttempt[]
 }
 
 model Exam {
@@ -28,7 +28,7 @@ model Exam {
   createdBy   User     @relation(fields: [userId], references: [id])
   userId      String   @db.ObjectId
   questions   Question[]
-  attempts    ExamAttempt[]
+  attempts    Attempt[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -40,34 +40,24 @@ model Question {
   correctOption Int
   exam          Exam     @relation(fields: [examId], references: [id])
   examId        String   @db.ObjectId
-  answers       Answer[]
+  fileType      FileType? // PDF or Image
+  fileUrl       String?   // URL to the stored file
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
 
-model ExamAttempt {
+model Attempt {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String   @db.ObjectId
   exam      Exam     @relation(fields: [examId], references: [id])
   examId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  answers   Json     // Array of selected options
+  score     Int
   startTime DateTime @default(now())
   endTime   DateTime?
-  status    AttemptStatus @default(IN_PROGRESS)
-  answers   Answer[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Answer {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  question      Question @relation(fields: [questionId], references: [id])
-  questionId    String   @db.ObjectId
-  selectedOption Int
-  examAttempt   ExamAttempt @relation(fields: [examAttemptId], references: [id])
-  examAttemptId String   @db.ObjectId
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 }
 
 enum Role {
@@ -76,8 +66,7 @@ enum Role {
   STUDENT
 }
 
-enum AttemptStatus {
-  IN_PROGRESS
-  COMPLETED
-  TERMINATED
+enum FileType {
+  PDF
+  IMAGE
 } 

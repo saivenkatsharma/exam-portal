@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { verifyAuth } from "./lib/auth"
+import { jwtVerify } from 'jose'
+
+// Move to edge-compatible JWT verification
+async function verifyJWT(token: string) {
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+    const { payload } = await jwtVerify(token, secret)
+    return payload
+  } catch (error) {
+    console.error('JWT verification error:', error)
+    return null
+  }
+}
 
 export async function middleware(request: NextRequest) {
   // Public paths that don't need authentication
@@ -12,19 +24,16 @@ export async function middleware(request: NextRequest) {
   // Check for token
   const token = request.cookies.get('token')
   if (!token) {
-    console.log('No token found, redirecting to login')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   try {
-    const verified = await verifyAuth(token.value)
-    if (!verified) {
-      console.log('Invalid token, redirecting to login')
+    const payload = await verifyJWT(token.value)
+    if (!payload) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return NextResponse.next()
   } catch (error) {
-    console.log('Auth error, redirecting to login')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }

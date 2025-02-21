@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@import 'slick-carousel/slick/slick.css';
+@import 'slick-carousel/slick/slick-theme.css';
+
+/* Custom styles for Slick carousel */
+.slick-dots {
+  bottom: 25px;
+}
+
+.slick-dots li button:before {
+  color: white;
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.slick-dots li.slick-active button:before {
+  color: white;
+  opacity: 1;
+}
+
+/* Fade animation for slides */
+.slick-fade {
+  opacity: 0;
+  transition: opacity 1000ms ease;
+}
+
+.slick-fade.slick-active {
+  opacity: 1;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

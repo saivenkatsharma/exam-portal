@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db" // Use the shared prisma client
 import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
+import { signToken } from "@/lib/auth"
 import { cookies } from 'next/headers'
 
 // Simple in-memory rate limiting
@@ -33,18 +33,25 @@ export async function POST(req: Request) {
       ipRequests.set(ip, { count: 1, timestamp: now })
     }
 
-    const { username, password } = await req.json()
-    console.log('Login attempt:', username)
+    const { username, password, role } = await req.json()
+    console.log('Login attempt for:', username)
 
-    // Check if user exists
-    const user = await prisma.user.findUnique({
-      where: { username },
+    // Find user with role check
+    const user = await prisma.user.findFirst({
+      where: { 
+        username,
+        role
+      },
+    })
+    console.log('Database result:', {
+      found: !!user,
+      userId: user?.id,
+      username: user?.username,
+      role: user?.role
     })
 
-    console.log('User found:', !!user)
-
     if (!user) {
-      console.log('User not found')
+      console.log('User not found in database')
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
@@ -62,12 +69,11 @@ export async function POST(req: Request) {
       )
     }
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: user.id, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: "8h" }
-    )
+    // Generate token using jose
+    const token = await signToken({
+      userId: user.id,
+      role: user.role
+    })
 
     // Create response with cookie
     const response = NextResponse.json(

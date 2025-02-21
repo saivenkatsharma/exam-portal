@@ -6,14 +6,6 @@ export async function POST(req: Request) {
   try {
     const { username, password, name } = await req.json()
 
-    // Validate input
-    if (!username || !password || !name) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      )
-    }
-
     // Check if username already exists
     const existingUser = await prisma.user.findUnique({
       where: { username },
@@ -35,12 +27,12 @@ export async function POST(req: Request) {
         username,
         password: hashedPassword,
         name,
-        role: "STUDENT",
+        role: 'STUDENT', // Default role for registration
       },
     })
 
     return NextResponse.json({
-      message: "Registration successful",
+      success: true,
       user: {
         id: user.id,
         username: user.username,
@@ -51,7 +43,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Registration error:", error)
     return NextResponse.json(
-      { error: "Registration failed. Please try again." },
+      { error: "Registration failed" },
       { status: 500 }
     )
   }

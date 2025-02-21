@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import DashboardNav from "@/components/dashboard/DashboardNav"
+import DashboardNav from "@/app/components/dashboard/DashboardNav"
 
 export default function DashboardLayout({
   children,

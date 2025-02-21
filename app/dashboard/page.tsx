@@ -8,17 +8,22 @@ export default async function DashboardPage() {
   const token = cookieStore.get('token')
 
   if (!token) {
-    console.log('No token found, redirecting to login')
     redirect('/login')
   }
 
-  try {
-    const decoded = await verifyAuth(token.value)
-    if (!decoded?.userId) {
-      console.log('Invalid token, redirecting to login')
-      redirect('/login')
-    }
+  const decoded = await verifyAuth(token.value)
+  if (!decoded?.userId) {
+    redirect('/login')
+  }
 
+  // Redirect based on role
+  if (decoded.role === 'TEACHER') {
+    redirect('/dashboard/teacher')
+  } else if (decoded.role === 'STUDENT') {
+    redirect('/dashboard/student')
+  }
+
+  try {
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {

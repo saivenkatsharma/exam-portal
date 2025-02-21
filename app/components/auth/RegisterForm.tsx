@@ -19,26 +19,49 @@ export default function RegisterForm() {
     try {
       const formData = new FormData(e.currentTarget)
       const data = {
-        username: formData.get("username")?.toString() || "",
-        password: formData.get("password")?.toString() || "",
-        name: formData.get("name")?.toString() || "",
+        username: formData.get("username"),
+        password: formData.get("password"),
+        name: formData.get("name"),
       }
 
-      if (!data.username || !data.password || !data.name) {
-        throw new Error("All fields are required")
+      // Validate password
+      const password = data.password as string
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters long")
       }
 
       const res = await fetch("/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(data),
       })
 
       const json = await res.json()
 
-      if (!res.ok) throw new Error(json.error || "Registration failed")
+      if (!res.ok) {
+        throw new Error(json.error || "Registration failed")
+      }
 
-      router.push("/login?registered=true")
+      // Automatically log in after successful registration
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+        }),
+        credentials: 'include',
+      })
+
+      if (loginRes.ok) {
+        router.push("/dashboard")
+      } else {
+        router.push("/login")
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -53,8 +76,8 @@ export default function RegisterForm() {
           {error}
         </div>
       )}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
             Full Name
           </label>
@@ -67,7 +90,7 @@ export default function RegisterForm() {
             placeholder="Enter your full name"
           />
         </div>
-        <div className="mb-4">
+        <div>
           <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
             Username
           </label>
@@ -80,7 +103,7 @@ export default function RegisterForm() {
             placeholder="Choose a username"
           />
         </div>
-        <div className="mb-6">
+        <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
@@ -91,21 +114,18 @@ export default function RegisterForm() {
             required
             minLength={6}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Create a password"
+            placeholder="Choose a password (min. 6 characters)"
           />
         </div>
         <Button type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </Button>
-
-        <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            Already registered?{" "}
-            <Link href="/login" className="text-blue-500 hover:text-blue-600 font-medium">
-              Login here
-            </Link>
-          </p>
-        </div>
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-600 hover:text-blue-700">
+            Login here
+          </Link>
+        </p>
       </form>
     </AuthLayout>
   )

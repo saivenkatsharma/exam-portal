@@ -1,67 +1,43 @@
-import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import { auth } from "@/lib/auth"
-
-const prisma = new PrismaClient()
-
-export async function GET(req: Request) {
-  try {
-    const user = await auth(req)
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      )
-    }
-
-    const exams = await prisma.exam.findMany({
-      include: {
-        questions: true,
-      },
-    })
-
-    return NextResponse.json(exams)
-  } catch (error) {
-    console.error("Error fetching exams:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
-  }
-}
+import { NextResponse } from 'next/server'
+import { prisma } from "@/lib/db"
+import { verifyAuth } from "@/lib/auth"
 
 export async function POST(req: Request) {
   try {
-    const user = await auth(req)
-    
-    if (!user || user.role !== "TEACHER") {
+    const token = req.headers.get('cookie')?.split('token=')[1]
+    if (!token) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const examData = await req.json()
-    
+    const decoded = await verifyAuth(token)
+    if (!decoded?.userId || decoded.role !== 'TEACHER') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const data = await req.json()
+    const { title, duration, startTime, endTime } = data
+
     const exam = await prisma.exam.create({
       data: {
-        ...examData,
-        userId: user.id,
-        questions: {
-          create: examData.questions,
-        },
-      },
-      include: {
-        questions: true,
-      },
+        title,
+        duration,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        userId: decoded.userId
+      }
     })
 
     return NextResponse.json(exam)
   } catch (error) {
-    console.error("Error creating exam:", error)
+    console.error('Exam creation error:', error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Failed to create exam' },
       { status: 500 }
     )
   }
