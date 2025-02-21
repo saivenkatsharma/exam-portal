@@ -15,9 +15,10 @@ export default function LoginForm({ role }: LoginFormProps) {
   const [status, setStatus] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // Format the title properly
+  // Format the title properly with null check
   const getFormattedTitle = (roleStr: string) => {
-    return roleStr.charAt(0) + roleStr.toLowerCase().slice(1) + ' Login'
+    if (!roleStr) return 'Login'
+    return `${roleStr.charAt(0)}${roleStr.toLowerCase().slice(1)} Login`
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
