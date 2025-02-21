@@ -1,3 +1,10 @@
+![image](https://github.com/user-attachments/assets/efc4be0c-c710-44cd-8d94-c46109bd965d)
+
+
+
+
+
+
 # 🎓 Tech Assessment Portal
 
 A modern examination platform built with Next.js for conducting technical assessments and skill evaluations.
