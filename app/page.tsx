@@ -2,147 +2,220 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Code2, BookOpen, Trophy, Users, Brain, Cloud, Shield, Robot } from 'lucide-react'
+import Slider from 'react-slick'
+import { Code2, Brain, Cloud, Shield, Bot, Terminal, Database, Globe } from 'lucide-react'
+import "slick-carousel/slick/slick.css"
+import "slick-carousel/slick/slick-theme.css"
+import Footer from '@/app/components/layout/Footer'
 
-const fadeIn = {
+const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 }
+  transition: { duration: 0.5 }
+}
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
 }
 
 const domains = [
   {
     title: "Full Stack Development",
     Icon: Code2,
-    description: "Master modern web development from frontend to backend",
-    techs: ["React", "Node.js", "TypeScript", "MongoDB"]
+    description: "Build scalable web applications using modern frameworks and architectures",
+    techs: ["React", "Node.js", "TypeScript", "GraphQL"],
+    details: "Master microservices, RESTful APIs, and database optimization",
+    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&q=80&w=800"
   },
   {
-    title: "Cloud Computing",
+    title: "Cloud Architecture",
     Icon: Cloud,
-    description: "Build and deploy scalable cloud solutions",
-    techs: ["AWS", "Azure", "Docker", "Kubernetes"]
+    description: "Design and implement cloud-native solutions",
+    techs: ["AWS", "Azure", "Kubernetes", "Terraform"],
+    details: "Learn infrastructure as code and cloud security best practices",
+    image: "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?auto=format&fit=crop&q=80&w=800"
   },
   {
     title: "Cybersecurity",
     Icon: Shield,
-    description: "Protect systems and data from security threats",
-    techs: ["Network Security", "Cryptography", "Ethical Hacking", "Security+"]
+    description: "Implement robust security measures and threat detection",
+    techs: ["Penetration Testing", "SIEM", "Zero Trust", "Encryption"],
+    details: "Master security protocols and vulnerability assessment",
+    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=800"
   },
   {
     title: "AI & Machine Learning",
     Icon: Brain,
-    description: "Develop intelligent systems and algorithms",
-    techs: ["Python", "TensorFlow", "PyTorch", "Data Science"]
+    description: "Build intelligent systems and predictive models",
+    techs: ["TensorFlow", "PyTorch", "NLP", "Computer Vision"],
+    details: "Implement deep learning and neural networks",
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"
   },
   {
-    title: "DevOps",
-    Icon: Robot,
-    description: "Streamline development and operations",
-    techs: ["CI/CD", "Jenkins", "Terraform", "Ansible"]
+    title: "DevOps & SRE",
+    Icon: Bot,
+    description: "Automate deployment pipelines and maintain reliability",
+    techs: ["CI/CD", "Docker", "Prometheus", "ELK Stack"],
+    details: "Implement monitoring and automated scaling solutions",
+    image: "https://images.unsplash.com/photo-1667372393619-49a642932b14?auto=format&fit=crop&q=80&w=800"
+  }
+]
+
+const techStack = [
+  {
+    category: "Frontend",
+    Icon: Globe,
+    technologies: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Redux"]
+  },
+  {
+    category: "Backend",
+    Icon: Terminal,
+    technologies: ["Node.js", "Python", "Java", "Go", "Microservices"]
+  },
+  {
+    category: "Database",
+    Icon: Database,
+    technologies: ["PostgreSQL", "MongoDB", "Redis", "Elasticsearch", "GraphQL"]
+  }
+]
+
+const heroSlides = [
+  {
+    image: "https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?auto=format&fit=crop&q=80&w=2070",
+    title: "Advanced Technical Assessment",
+    description: "Evaluate your skills in cutting-edge technologies"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1504384764586-bb4cdc1707b0?auto=format&fit=crop&q=80&w=2070",
+    title: "Real-World Challenges",
+    description: "Solve industry-standard programming problems"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?auto=format&fit=crop&q=80&w=2070",
+    title: "Secure Testing Environment",
+    description: "Take exams in a controlled and monitored setting"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=2070",
+    title: "Professional Development",
+    description: "Advance your career in technology"
+  },
+  {
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=2070",
+    title: "Comprehensive Analytics",
+    description: "Track your progress with detailed insights"
   }
 ]
 
 export default function LandingPage() {
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 1000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    fade: true,
+    cssEase: "linear",
+    pauseOnHover: false
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-blue-900 to-black text-white">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-purple-900/50" />
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-          <motion.div 
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-6">
-              Master Modern Software Engineering
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Comprehensive assessments across the entire software industry spectrum. 
-              Prove your expertise in multiple domains.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              {['React', 'Node.js', 'Python', 'AWS', 'DevOps', 'Security'].map((tech, index) => (
-                <motion.div
-                  key={tech}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="px-4 py-2 bg-blue-900/30 rounded-full text-blue-300"
-                >
-                  {tech}
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
+      {/* Hero Section with Carousel */}
+      <div className="relative h-screen">
+        <Slider {...sliderSettings} className="h-full">
+          {heroSlides.map((slide, index) => (
+            <div key={index} className="relative h-screen">
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${slide.image})`,
+                }}
               >
-                <Link
-                  href="/login"
-                  className="px-8 py-4 bg-blue-600 rounded-full text-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  Start Assessment
-                </Link>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link
-                  href="/teacher/login"
-                  className="px-8 py-4 bg-purple-600 rounded-full text-lg font-semibold hover:bg-purple-700 transition-colors"
-                >
-                  Teacher Portal
-                </Link>
-              </motion.div>
+                <div className="absolute inset-0 bg-black bg-opacity-50" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white px-4">
+                    <motion.h1
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8 }}
+                      className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
+                    >
+                      {slide.title}
+                    </motion.h1>
+                    <motion.p
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                      className="text-xl sm:text-2xl md:text-3xl mb-8"
+                    >
+                      {slide.description}
+                    </motion.p>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.8, delay: 0.4 }}
+                      className="flex flex-col sm:flex-row gap-4 justify-center"
+                    >
+                      <Link
+                        href="/login/student"
+                        className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 hover:scale-105"
+                      >
+                        Student Login
+                      </Link>
+                      <Link
+                        href="/login/invigilator"
+                        className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 hover:scale-105"
+                      >
+                        Invigilator Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="px-8 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition-all duration-200 hover:scale-105"
+                      >
+                        Student Register
+                      </Link>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </motion.div>
-        </div>
+          ))}
+        </Slider>
       </div>
 
-      {/* Domains Section */}
-      <div className="py-20 bg-black/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            variants={fadeIn}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold mb-4">Technology Domains</h2>
-            <p className="text-gray-400 text-lg">
-              Comprehensive assessments across multiple technology domains
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {domains.map((domain, index) => (
+      {/* Main Content */}
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Tech Stack Section */}
+        <motion.div
+          className="mt-20"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <h2 className="text-3xl font-bold text-center mb-12">Technical Expertise</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {techStack.map((stack, index) => (
               <motion.div
-                key={domain.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
-                className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-xl p-6 backdrop-blur-sm"
+                key={index}
+                variants={fadeInUp}
+                className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
               >
-                <domain.Icon className="h-12 w-12 text-blue-400 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">{domain.title}</h3>
-                <p className="text-gray-400 mb-4">{domain.description}</p>
+                <div className="flex items-center mb-4">
+                  <stack.Icon className="h-6 w-6 text-blue-500" />
+                  <h3 className="ml-2 text-xl font-semibold">{stack.category}</h3>
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {domain.techs.map(tech => (
+                  {stack.technologies.map((tech, i) => (
                     <span
-                      key={tech}
-                      className="px-3 py-1 bg-blue-900/30 rounded-full text-sm text-blue-300"
+                      key={i}
+                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
                     >
                       {tech}
                     </span>
@@ -151,67 +224,75 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Statistics Section */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="py-20 bg-gradient-to-b from-blue-900/20 to-purple-900/20"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { number: "1000+", label: "Assessments" },
-              { number: "50+", label: "Technology Tracks" },
-              { number: "10000+", label: "Students" },
-              { number: "95%", label: "Success Rate" }
-            ].map((stat, index) => (
+        {/* Domains Section */}
+        <motion.div
+          className="mt-20"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <h2 className="text-3xl font-bold text-center mb-12">Specialized Domains</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {domains.map((domain, index) => (
               <motion.div
-                key={stat.label}
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
+                key={index}
+                variants={fadeInUp}
+                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
-                <div className="text-4xl font-bold text-blue-400 mb-2">
-                  {stat.number}
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={domain.image}
+                    alt={domain.title}
+                    className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                  />
                 </div>
-                <div className="text-gray-400">{stat.label}</div>
+                <div className="p-6">
+                  <div className="flex items-center mb-3">
+                    <domain.Icon className="h-6 w-6 text-blue-500" />
+                    <h3 className="ml-2 text-xl font-semibold">{domain.title}</h3>
+                  </div>
+                  <p className="text-gray-600 mb-4">{domain.description}</p>
+                  <p className="text-gray-500 text-sm mb-4">{domain.details}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {domain.techs.map((tech, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
-        </div>
-      </motion.div>
-
-      {/* CTA Section */}
-      <div className="relative py-20">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="relative max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8"
-        >
-          <h2 className="text-4xl font-bold mb-8">Ready to Prove Your Skills?</h2>
-          <p className="text-xl text-gray-300 mb-10">
-            Join thousands of software professionals who have validated their expertise through our platform.
-          </p>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Link
-              href="/register"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-colors"
-            >
-              Start Your Journey
-            </Link>
-          </motion.div>
         </motion.div>
-      </div>
+
+        {/* Call to Action */}
+        <motion.div
+          className="mt-20 text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <h2 className="text-3xl font-bold mb-6">Ready to Prove Your Expertise?</h2>
+          <p className="text-gray-600 mb-8">
+            Join leading developers in validating their technical proficiency
+          </p>
+          <Link
+            href="/register"
+            className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-105"
+          >
+            Start Your Journey
+          </Link>
+        </motion.div>
+      </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

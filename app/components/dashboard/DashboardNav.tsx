@@ -8,11 +8,17 @@ export default function DashboardNav() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', {
+      const res = await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
       })
-      router.push('/login')
+      
+      if (res.ok) {
+        // Redirect to home page instead of login
+        router.push('/')
+      } else {
+        console.error('Logout failed')
+      }
     } catch (error) {
       console.error('Logout error:', error)
     }

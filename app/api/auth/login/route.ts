@@ -33,13 +33,15 @@ export async function POST(req: Request) {
       ipRequests.set(ip, { count: 1, timestamp: now })
     }
 
-    const { username, password } = await req.json()
+    const { username, password, role } = await req.json()
     console.log('Login attempt for:', username)
 
-    // Find user with detailed logging
-    console.log('Searching for user in database...')
-    const user = await prisma.user.findUnique({
-      where: { username },
+    // Find user with role check
+    const user = await prisma.user.findFirst({
+      where: { 
+        username,
+        role
+      },
     })
     console.log('Database result:', {
       found: !!user,

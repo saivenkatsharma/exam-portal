@@ -16,14 +16,14 @@ interface ExamProps {
     duration: number
     questions: Question[]
   }
-  userId: string
 }
 
-export default function ExamComponent({ exam, userId }: ExamProps) {
+export default function ExamComponent({ exam }: ExamProps) {
   const router = useRouter()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<number[]>(new Array(exam.questions.length).fill(-1))
-  const [timeLeft, setTimeLeft] = useState(exam.duration * 60)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
   const handleAnswer = (optionIndex: number) => {
     const newAnswers = [...answers]
@@ -33,6 +33,9 @@ export default function ExamComponent({ exam, userId }: ExamProps) {
 
   const handleSubmit = async () => {
     try {
+      setSubmitting(true)
+      setError("")
+
       const res = await fetch('/api/exam/submit', {
         method: 'POST',
         headers: {
@@ -40,30 +43,44 @@ export default function ExamComponent({ exam, userId }: ExamProps) {
         },
         body: JSON.stringify({
           examId: exam.id,
-          userId,
           answers,
         }),
+        credentials: 'include', // Important: Include credentials
       })
 
-      if (res.ok) {
-        router.push('/dashboard')
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to submit exam')
       }
+
+      const data = await res.json()
+      
+      // Redirect to results page
+      router.push(`/dashboard/student/attempts/${data.attempt.id}`)
     } catch (error) {
-      console.error('Failed to submit exam:', error)
+      console.error('Submit error:', error)
+      setError(error instanceof Error ? error.message : 'Failed to submit exam')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
       <div className="mb-8">
         <h1 className="text-2xl font-bold">{exam.title}</h1>
-        <p className="text-gray-600">Time remaining: {Math.floor(timeLeft / 60)}:{timeLeft % 60}</p>
+        <p className="text-gray-600">
+          Question {currentQuestion + 1} of {exam.questions.length}
+        </p>
       </div>
 
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-xl mb-4">
-          Question {currentQuestion + 1} of {exam.questions.length}
-        </h2>
         <p className="mb-4">{exam.questions[currentQuestion].text}</p>
 
         <div className="space-y-2">
@@ -76,6 +93,7 @@ export default function ExamComponent({ exam, userId }: ExamProps) {
                   : 'bg-gray-100 hover:bg-gray-200'
               }`}
               onClick={() => handleAnswer(index)}
+              disabled={submitting}
             >
               {option}
             </button>
@@ -85,7 +103,7 @@ export default function ExamComponent({ exam, userId }: ExamProps) {
         <div className="mt-6 flex justify-between">
           <button
             onClick={() => setCurrentQuestion(curr => curr - 1)}
-            disabled={currentQuestion === 0}
+            disabled={currentQuestion === 0 || submitting}
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
           >
             Previous
@@ -93,14 +111,16 @@ export default function ExamComponent({ exam, userId }: ExamProps) {
           {currentQuestion === exam.questions.length - 1 ? (
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              disabled={submitting}
+              className="px-4 py-2 bg-green-500 text-white rounded disabled:opacity-50"
             >
-              Submit
+              {submitting ? "Submitting..." : "Submit"}
             </button>
           ) : (
             <button
               onClick={() => setCurrentQuestion(curr => curr + 1)}
-              className="px-4 py-2 bg-blue-500 text-white rounded"
+              disabled={submitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
             >
               Next
             </button>

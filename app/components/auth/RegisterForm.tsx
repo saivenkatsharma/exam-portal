@@ -2,6 +2,9 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Button } from "../ui/Button"
+import AuthLayout from "./AuthLayout"
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -13,14 +16,20 @@ export default function RegisterForm() {
     setError("")
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      username: formData.get("username"),
-      password: formData.get("password"),
-      name: formData.get("name"),
-    }
-
     try {
+      const formData = new FormData(e.currentTarget)
+      const data = {
+        username: formData.get("username"),
+        password: formData.get("password"),
+        name: formData.get("name"),
+      }
+
+      // Validate password
+      const password = data.password as string
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters long")
+      }
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -35,8 +44,24 @@ export default function RegisterForm() {
         throw new Error(json.error || "Registration failed")
       }
 
-      // Redirect to login page after successful registration
-      router.push("/login")
+      // Automatically log in after successful registration
+      const loginRes = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+        }),
+        credentials: 'include',
+      })
+
+      if (loginRes.ok) {
+        router.push("/dashboard")
+      } else {
+        router.push("/login")
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -45,16 +70,15 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Student Registration</h2>
+    <AuthLayout title="Student Registration">
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
         </div>
       )}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="name" className="block mb-2">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
             Full Name
           </label>
           <input
@@ -62,11 +86,12 @@ export default function RegisterForm() {
             id="name"
             name="name"
             required
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter your full name"
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="username" className="block mb-2">
+        <div>
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
             Username
           </label>
           <input
@@ -74,11 +99,12 @@ export default function RegisterForm() {
             id="username"
             name="username"
             required
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Choose a username"
           />
         </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block mb-2">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
             Password
           </label>
           <input
@@ -86,17 +112,21 @@ export default function RegisterForm() {
             id="password"
             name="password"
             required
-            className="w-full p-2 border rounded"
+            minLength={6}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Choose a password (min. 6 characters)"
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register"}
-        </button>
+        </Button>
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-600 hover:text-blue-700">
+            Login here
+          </Link>
+        </p>
       </form>
-    </div>
+    </AuthLayout>
   )
 } 

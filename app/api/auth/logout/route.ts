@@ -6,13 +6,15 @@ export async function POST() {
     { status: 200 }
   )
 
-  // Clear the token cookie
+  // Clear the token cookie immediately
   response.cookies.set({
     name: 'token',
     value: '',
     httpOnly: true,
-    expires: new Date(0), // Expire immediately
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
     path: '/',
+    expires: new Date(0), // Expire immediately
   })
 
   return response

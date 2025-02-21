@@ -5,11 +5,20 @@ import { useRouter } from "next/navigation"
 import { Button } from "../ui/Button"
 import AuthLayout from "./AuthLayout"
 
-export default function LoginForm() {
+interface LoginFormProps {
+  role: 'STUDENT' | 'INVIGILATOR'
+}
+
+export default function LoginForm({ role }: LoginFormProps) {
   const router = useRouter()
   const [error, setError] = useState("")
   const [status, setStatus] = useState("")
   const [loading, setLoading] = useState(false)
+
+  // Format the title properly
+  const getFormattedTitle = (roleStr: string) => {
+    return roleStr.charAt(0) + roleStr.toLowerCase().slice(1) + ' Login'
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -24,6 +33,7 @@ export default function LoginForm() {
       const data = {
         username: formData.get("username")?.toString() || "",
         password: formData.get("password")?.toString() || "",
+        role: role
       }
 
       setStatus("Logging in...")
@@ -45,27 +55,20 @@ export default function LoginForm() {
 
       if (json.success) {
         setStatus("Success! Redirecting...")
-
-        // First try router push
-        try {
-          await router.push('/dashboard')
-        } catch (e) {
-          // If router push fails, use window.location
-          window.location.href = '/dashboard'
-        }
+        const dashboardPath = role === 'STUDENT' ? '/dashboard/student' : '/dashboard/invigilator'
+        router.push(dashboardPath)
       } else {
         throw new Error("Login failed")
       }
     } catch (err: any) {
-      console.error('Login error:', err)
-      setError(err.message)
+      setError(err.message || "An error occurred during login")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <AuthLayout title="Login">
+    <AuthLayout title={getFormattedTitle(role)}>
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
           {error}
@@ -86,7 +89,8 @@ export default function LoginForm() {
             id="username"
             name="username"
             required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Enter your username"
           />
         </div>
@@ -99,11 +103,17 @@ export default function LoginForm() {
             id="password"
             name="password"
             required
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             placeholder="Enter your password"
           />
         </div>
-        <Button type="submit" disabled={loading}>
+        <Button 
+          type="submit" 
+          disabled={loading}
+          variant="primary"
+          className="w-full"
+        >
           {loading ? "Logging in..." : "Login"}
         </Button>
       </form>
